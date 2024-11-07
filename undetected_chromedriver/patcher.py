@@ -18,6 +18,7 @@ from urllib.request import urlopen
 from urllib.request import urlretrieve
 import zipfile
 from multiprocessing import Lock
+import importlib.resources as resources
 
 logger = logging.getLogger(__name__)
 
@@ -247,18 +248,22 @@ class Patcher(object):
             # Fetch the latest version
             path = "/last-known-good-versions-with-downloads.json"
             logger.debug("getting release number from %s" % path)
-            with urlopen(self.url_repo + path) as conn:
-                response = conn.read().decode()
-
+            # with urlopen(self.url_repo + path) as conn:
+            #     response = conn.read().decode()
+            asset_path = resources.files('undetected_chromedriver').joinpath("last-known-good-versions-with-downloads.json")
+            with open(asset_path, 'r') as f:
+                response = f.read()
             last_versions = json.loads(response)
             return LooseVersion(last_versions["channels"]["Stable"]["version"])
 
         # Fetch the latest minor version of the major version provided
         path = "/latest-versions-per-milestone-with-downloads.json"
         logger.debug("getting release number from %s" % path)
-        with urlopen(self.url_repo + path) as conn:
-            response = conn.read().decode()
-
+        # with urlopen(self.url_repo + path) as conn:
+        #     response = conn.read().decode()
+        asset_path = resources.files('undetected_chromedriver').joinpath("latest-versions-per-milestone-with-downloads.json")
+        with open(asset_path, 'r') as f:
+            response = f.read()
         major_versions = json.loads(response)
         return LooseVersion(major_versions["milestones"][str(self.version_main)]["version"])
 
